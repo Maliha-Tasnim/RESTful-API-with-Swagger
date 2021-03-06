@@ -1,0 +1,293 @@
+swagger: '2.0'
+info:
+  description: >-
+    "This is an API for building sensor network with Swagger 2.0"
+  version: 1.0.0
+  title: Swagger Building-Sensor-Network
+  termsOfService: 'http://swagger.io/terms/'
+  contact:
+    name: "Maliha Tasnim"
+    email: "maliha.tasnim@tuni.fi" 
+  license:
+    name: Apache 2.0
+    url: 'http://www.apache.org/licenses/LICENSE-2.0.html'
+host: "building-sensor-network.swagger.io"
+basePath: /v1
+tags:
+  - name: "Buildings"
+    description: "Buildings related entire information"
+    externalDocs:
+      description: Find out more
+      url: 'http://swagger.io'
+  - name: "Sensors"
+    description: "Sensors related entire information"
+    externalDocs:
+      description: Find out more
+      url: 'http://swagger.io'
+schemes:
+  - https
+  - http
+paths:
+  /Buildings:
+    get:
+      tags:
+        - "Buildings"
+      summary: "Receive the list of all the buildings"
+      description: ''
+      operationId: "getBuildings"
+      produces:
+        - "application/xml"
+        - "application/json"
+      parameters: []
+      responses:
+        "200":
+          description: "A list of buildings"
+          schema:
+            $ref: "#/definitions/Buildings"
+        "404" :
+          description: "Buildings are not found"
+    post:
+      tags:
+       - "Buildings"
+      summary: "Adding a new building information"
+      description: ''
+      operationId: "addBuilding"
+      produces:
+        - "application/xml"
+        - "application/json"
+      parameters:
+      - in: "body"
+        name: "body"
+        description: "Buliding data is included in JSON format"
+        required: true
+        schema:
+          $ref: "#/definitions/Building"
+      responses:
+        "201":
+          description: "Building created successfully"
+          schema:
+            $ref: "#/definitions/Building"
+        "503":
+          description: "Server error, service is unavailable"
+  '/Buildings/{buildingId}':
+    get:
+      tags:
+      - "Buildings"
+      summary: "Get a building with a specific building ID"
+      description: ""
+      operationId: "getBuildingById"
+      produces:
+      - "application/xml"
+      - "application/json"
+      parameters:
+      - name: "buildingId"
+        in: "path"
+        description: ""
+        required: true
+        type: "string"
+      responses:
+        "200":
+          description: "Building fetched successfully"
+          schema:
+            $ref: "#/definitions/Building"
+        "404":
+          description: "Required Building Not found"
+    patch:
+      tags: 
+      - "Buildings"
+      summary: "Updating building information"
+      description: ""
+      operationId: "patchBuildingById"
+      produces:
+      - "application/xml"
+      - "application/json"
+      parameters:
+      - name: "buildingId"
+        in: "path"
+        description: "Building ID that needs to be updated"
+        required: true
+        type: "string"
+      - name: "body"
+        in: "body"
+        description: "Updated building information"
+        required: true
+        schema: 
+          $ref: "#/definitions/Building"
+      responses:
+        "200":
+          description: "Updated successfully"
+          schema:
+            $ref: "#/definitions/Building"
+        "400":
+          description: "Bad request"
+  '/Buildings/{buildingId}/Sensors':
+    put: 
+      tags: 
+        - "Sensors"
+      summary: "Add a new sensor"
+      description: ""
+      operationId: "putSensors"
+      produces:
+      - "application/xml"
+      - "application/json"
+      parameters:
+      - name: "buildingId"
+        in: "path"
+        description: "Building ID that have this sensor"
+        required: true
+        type: "string"
+      - name: "body"
+        in: "body"
+        description: "Updated sensors list"
+        required: true
+        schema:
+          $ref: "#/definitions/Sensors"
+      responses:
+        "200":
+          description: "Sensors list is sucessfully updated"
+          schema:
+            $ref: "#/definitions/Sensors"
+        "500":
+          description: "Unexpected internal server error"
+    get:
+      tags:
+       - "Sensors"
+      summary: "Retrieve all the sensors in a building with specific ID"
+      operationId: "getSensorsByBuildingId"
+      produces:
+      - "application/xml"
+      - "application/json"
+      parameters:
+      - name: "buildingId"
+        in: "path"
+        description: "Updated building ID for sensor"
+        required: true
+        type: "string"
+      responses:
+        "200":
+          description: "List of all the sensors in the specific building"
+          schema:
+            $ref: "#/definitions/Sensors"
+        "400":
+          description: "Invalid building ID"
+        "404":
+          description: "Building Not Found"
+  /Sensors:
+    get:
+      tags:
+      - "Sensors"
+      summary: "Retrieve all sensors in certain state"
+      description: ""
+      operationId: "getSensorsByState"
+      produces:
+      - "application/xml"
+      - "application/json"
+      parameters:
+      - name: "states"
+        in: "query"
+        description: "List of sensor states to get"
+        required: true
+        type: "array"
+        items: 
+          enum:
+          - "online"
+          - "offline"
+          - "error"
+      responses:
+        "200":
+          description: "List of sensors"
+          schema:
+            $ref: "#/definitions/Sensors"
+        "404":
+          description: "Sensors are not found"
+  '/Sensor/{id}':
+    delete:
+      tags:
+      - "Sensors"
+      summary: "Delete a sensor"
+      description: ""
+      operationId: "deleteSensor"
+      produces:
+      - "application/xml"
+      - "application/json"
+      parameters:
+      - name: "id"
+        in: "path"
+        required: true
+        type: "string"
+      responses:
+        "200":
+          description: "Successfully deleted the sensor"
+          schema:
+            $ref: "#/definitions/Sensors"
+        "400":
+          description: "Invalid sensor ID"
+        "404":
+          description: "Sensor not found"        
+definitions:
+  Building:
+    type: "object"
+    properties:
+      id:
+        type: "string"
+        description: "Unique String"
+      name:
+        type: "string"
+        format: "name"
+      address:
+        $ref: "#/definitions/Address"
+      sensors:
+        $ref: "#/definitions/Sensors"
+    xml:
+      name: "Building"
+  Buildings:
+    type: "array"
+    items:
+      $ref: "#/definitions/Building"
+    xml:
+      name: "Buildings"
+  Address:
+    type: "object"
+    properties:
+      street:
+        type: "string"
+        description: "Street Address"
+      postNumber:
+        type: "integer"
+        format: "int64"
+    xml:
+      name: "Address"
+  Sensor:
+    type: "object"
+    properties:
+      id:
+        type: "string"
+        description: "Unique String"
+      name:
+        type: "string"
+        description: "Name of the Sensor"
+      value:
+        type: "integer"
+        format: "int64"
+      buildingId:
+        type: "string"
+        description: "Building ID which have the sensor"  
+      state:
+        type: "string"
+        description: "Status of the Sensor"
+        enum:
+        - "online"
+        - "offline"
+        - "error"
+    xml:
+      name: "Sensor"
+  Sensors:
+    type: "array"
+    items:
+      $ref: "#/definitions/Sensor"
+    xml:
+      name: "Sensors"
+externalDocs:
+  description: "Find out more about Swagger"
+  url: "http://swagger.io"
+    
